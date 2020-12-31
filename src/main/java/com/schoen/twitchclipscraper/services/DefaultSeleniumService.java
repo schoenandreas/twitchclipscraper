@@ -32,7 +32,7 @@ public class DefaultSeleniumService implements SeleniumService {
            final WebElement liveElement = streamPage.findElement(By.cssSelector("div.live-indicator-container p.tw-strong"));
            return liveElement.getText().equals("LIVE") ;
        }catch (NoSuchElementException e){
-           log.debug("Live element not found. Returning FALSE");
+           log.info("Live element not found. Returning FALSE");
            return false;
        }
     }

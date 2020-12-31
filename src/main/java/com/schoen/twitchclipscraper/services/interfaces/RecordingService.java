@@ -2,7 +2,6 @@ package com.schoen.twitchclipscraper.services.interfaces;
 
 
 import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
 
 public interface RecordingService{
 
@@ -13,8 +12,6 @@ public interface RecordingService{
     void recordAll();
 
     void createClip();
-
-    CompletableFuture<Void> recordStreamerThread(String streamerName) throws InterruptedException;
 
     void stopRecording();
 }

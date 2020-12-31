@@ -27,7 +27,7 @@ public class RecordingThread {
 
     private static  int INTERVAL_REC_SEC = 10;
     private static  int INTERVAL_WAIT_SEC = 5;
-    private volatile boolean recordingEnabled = true;
+    public static volatile boolean recordingEnabled = true;
 
     private final SeleniumService seleniumService;
     private final StreamerRepository streamerRepository;
@@ -43,7 +43,7 @@ public class RecordingThread {
             final List<RecordEntryModel> entries = new ArrayList<>();
             StreamRecordingModel streamRecordingModel = null;
             RecordEntryModel lastEntry = null;
-            while(recordingEnabled && seleniumService.isOnline(page) && false){
+            while(recordingEnabled && seleniumService.isOnline(page)){
                 if(streamRecordingModel == null){
                     Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                     log.info("{}: Recording for Streamer {} started.",now, streamerName);
