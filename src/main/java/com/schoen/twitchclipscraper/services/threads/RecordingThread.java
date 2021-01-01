@@ -26,7 +26,7 @@ public class RecordingThread {
 
 
     private static  int INTERVAL_REC_SEC = 10;
-    private static  int INTERVAL_WAIT_SEC = 5;
+    private static  int INTERVAL_WAIT_SEC = 20;
     public static volatile boolean recordingEnabled = true;
 
     private final SeleniumService seleniumService;
@@ -43,7 +43,7 @@ public class RecordingThread {
             final List<RecordEntryModel> entries = new ArrayList<>();
             StreamRecordingModel streamRecordingModel = null;
             RecordEntryModel lastEntry = null;
-            while(recordingEnabled && seleniumService.isOnline(page)){
+            while(recordingEnabled && seleniumService.isOnline(page, streamerName)){
                 if(streamRecordingModel == null){
                     Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                     log.info("{}: Recording for Streamer {} started.",now, streamerName);
@@ -53,10 +53,7 @@ public class RecordingThread {
                 lastEntry = entry;
                 entries.add(entry);
                 streamRecordingRepository.save(streamRecordingModel);
-                try{
-                    Thread.sleep(INTERVAL_REC_SEC *1000);
-                }catch (InterruptedException e){}
-
+                sleepInSec(INTERVAL_REC_SEC);
             }
             if(streamRecordingModel != null){
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
@@ -65,12 +62,17 @@ public class RecordingThread {
                 log.info("{}: Recording for Streamer {} finished.",now, streamerName);
             }
             log.info("RecordingThread for Streamer {} is waiting {} sec.",streamerName,INTERVAL_WAIT_SEC);
-            try{
-                Thread.sleep(INTERVAL_WAIT_SEC *1000);
-            }catch (InterruptedException e){}
-
+            sleepInSec(INTERVAL_WAIT_SEC);
         }
         log.info("{}: recordingThread for Streamer {} finished.",Timestamp.valueOf(LocalDateTime.now()), streamerName);
+    }
+
+    private void sleepInSec(final int sleepDuration) {
+        try{
+            Thread.sleep(sleepDuration *1000);
+        }catch (InterruptedException e){
+            log.debug(e.getMessage());
+        }
     }
 
     private RecordEntryModel createRecordEntry(final StreamRecordingModel recordingModel, final WebElement page, final RecordEntryModel lastEntry){

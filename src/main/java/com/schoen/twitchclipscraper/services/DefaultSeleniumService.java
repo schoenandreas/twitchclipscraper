@@ -27,12 +27,14 @@ public class DefaultSeleniumService implements SeleniumService {
     }
 
     @Override
-    public boolean isOnline(WebElement streamPage) {
+    public boolean isOnline(final WebElement streamPage, final String streamerName) {
        try {
-           final WebElement liveElement = streamPage.findElement(By.cssSelector("div.live-indicator-container p.tw-strong"));
-           return liveElement.getText().equals("LIVE") ;
+           final WebElement liveElement = streamPage.findElement(By.cssSelector("a[href=\"/"+streamerName+"\"] div.live-indicator-container p.tw-strong"));
+           boolean isLive = liveElement.getText().equals("LIVE");
+           log.info(streamerName+" is LIVE");
+           return isLive ;
        }catch (NoSuchElementException e){
-           log.info("Live element not found. Returning FALSE");
+           log.debug("Live element not found. {} is offline or selector is broken.", streamerName);
            return false;
        }
     }

@@ -20,6 +20,7 @@ class DefaultSeleniumServiceTest {
 
     @BeforeEach
     void setUp() {
+        System.setProperty("webdriver.chrome.driver","src/main/resources/chromedriver.exe");
     }
 
     @Test
@@ -28,7 +29,7 @@ class DefaultSeleniumServiceTest {
     }
 
     @Test
-    void isOnlineTest() throws InterruptedException {
+    void chatMsgTest() throws InterruptedException {
         WebElement page = systemUnderTest.getPage("sweet_anita");
         List<WebElement> msgList = page.findElements(By.cssSelector("div.chat-line__message"));
         log.info(java.lang.String.valueOf(msgList.size()));
@@ -48,5 +49,14 @@ class DefaultSeleniumServiceTest {
         Thread.sleep(20000);
         final int numberOfViewers = Integer.valueOf(page.findElement(By.cssSelector("span.tw-animated-number.tw-animated-number--monospaced")).getText());
         log.info(""+numberOfViewers);
+    }
+
+    @Test
+    void isOnlineTest() throws InterruptedException {
+        String streamerName = "mizkif";
+        WebElement page = systemUnderTest.getPage(streamerName);
+        Thread.sleep(500);
+        String result = page.findElement(By.cssSelector("a[href=\"/"+streamerName+"\"] div.live-indicator-container p.tw-strong")).getText();
+        log.info(streamerName+" is "+result);
     }
 }

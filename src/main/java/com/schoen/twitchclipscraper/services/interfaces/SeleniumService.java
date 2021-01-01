@@ -11,7 +11,7 @@ public interface SeleniumService {
 
     WebElement getPage(final String streamerName);
 
-    boolean isOnline(final WebElement streamPage);
+    boolean isOnline(final WebElement streamPage,final String streamerName);
 
     List<java.lang.String> getWebElementsContentList (List<WebElement> webElementList);
 }
