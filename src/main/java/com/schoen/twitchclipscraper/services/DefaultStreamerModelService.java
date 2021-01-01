@@ -27,4 +27,17 @@ public class DefaultStreamerModelService implements StreamerModelService {
                 return null;
             }
     }
+
+    @Override
+    public void deleteStreamer(final String streamerName) {
+        StreamerModel streamerModel=null;
+        try{
+            streamerModel = streamerRepository.findByStreamerName(streamerName);
+        }catch(Exception e) {
+            log.info("Streamer {} does not exist.", streamerName);
+            return;
+        }
+        streamerRepository.delete(streamerModel);
+        log.info("Streamer {} deleted.", streamerName);
+    }
 }

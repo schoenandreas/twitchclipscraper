@@ -10,6 +10,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,8 +19,12 @@ import java.util.List;
 public class DefaultSeleniumService implements SeleniumService {
 
     @Override
-    public WebElement getPage(@NonNull String streamerName) {
-        WebDriver driver = new ChromeDriver();
+    public WebDriver getDriver() {
+        return new ChromeDriver();
+    }
+
+    @Override
+    public WebElement getPage(@NonNull final String streamerName, @NonNull final WebDriver driver) {
         driver.get(TWITCH_URL + streamerName);
         WebElement streamPage = driver.findElement(By.tagName("body"));
         log.info(streamPage.toString());
@@ -41,7 +46,7 @@ public class DefaultSeleniumService implements SeleniumService {
 
     @Override
     public List<java.lang.String> getWebElementsContentList(List<WebElement> webElementList) {
-        List<java.lang.String> result  = Collections.emptyList();
+        List<java.lang.String> result  = new ArrayList<>();
         webElementList.forEach(webElement -> result.add(webElement.getText()));
         return result;
     }

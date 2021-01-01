@@ -1,5 +1,6 @@
 package com.schoen.twitchclipscraper.services.interfaces;
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
@@ -7,9 +8,11 @@ import java.util.List;
 
 public interface SeleniumService {
 
-    java.lang.String TWITCH_URL = "https://www.twitch.tv/";
+    String TWITCH_URL = "https://www.twitch.tv/";
 
-    WebElement getPage(final String streamerName);
+    WebDriver getDriver();
+
+    WebElement getPage(final String streamerName, final WebDriver webDriver);
 
     boolean isOnline(final WebElement streamPage,final String streamerName);
 
