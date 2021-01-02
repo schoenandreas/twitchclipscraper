@@ -17,9 +17,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +33,7 @@ public class RecordingThread {
     private static  int INTERVAL_REC_SEC = 10;
     private static  int INTERVAL_WAIT_SEC = 20;
     public static volatile boolean recordingEnabled = true;
+    private int oldMsgCount = 0;
 
     private final SeleniumService seleniumService;
     private final StreamerRepository streamerRepository;
@@ -44,15 +48,15 @@ public class RecordingThread {
         final WebDriver driver = seleniumService.getDriver();
         final WebElement page = seleniumService.getPage(streamerName, driver);
         while(recordingEnabled) {
-            final List<RecordEntryModel> entries = new ArrayList<>();
             StreamRecordingModel streamRecordingModel = null;
             while(recordingEnabled && seleniumService.isOnline(page, streamerName)){
                 if(streamRecordingModel == null){
                     Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                     log.info("{}: Recording for Streamer {} started.",now, streamerName);
-                    streamRecordingModel = StreamRecordingModel.builder().streamer(streamerModel).startDate(now).intervalSeconds(INTERVAL_REC_SEC).entries(entries).build();
+                    streamRecordingModel = StreamRecordingModel.builder().streamer(streamerModel).startDate(now).intervalSeconds(INTERVAL_REC_SEC).entries(new ArrayList<>()).build();
                 }
                 final RecordEntryModel entry = createRecordEntry(streamRecordingModel, page);
+                log.info("oldMsgCount {}",oldMsgCount);
                 streamRecordingRepository.save(streamRecordingModel);
                 recordEntryRepository.save(entry);
                 sleepInSec(INTERVAL_REC_SEC);
@@ -80,11 +84,13 @@ public class RecordingThread {
 
     private RecordEntryModel createRecordEntry(final StreamRecordingModel recordingModel, final WebElement page){
         final List<WebElement> msgList = page.findElements(By.cssSelector("div.chat-line__message"));
-        final List<String> msgListNewString = seleniumService.getWebElementsContentList(msgList);
+        final int msgListSize = msgList.size();
+        final List<String> msgListNewString = seleniumService.getWebElementsContentList(msgList.subList(msgListSize-Math.min(msgListSize,oldMsgCount), msgListSize));
+        oldMsgCount = msgListSize;
         int numberOfViewers = 0;
         try {
-            numberOfViewers = Integer.valueOf(page.findElement(By.cssSelector("span.tw-animated-number.tw-animated-number--monospaced")).getText());
-        }catch (NoSuchElementException e){}
+            numberOfViewers = NumberFormat.getNumberInstance(Locale.UK).parse(page.findElement(By.cssSelector("span.tw-animated-number.tw-animated-number--monospaced")).getText()).intValue();
+        }catch (NoSuchElementException | ParseException e){}
 
         //add clipping later
         final String clipURL= null;

@@ -45,10 +45,34 @@ public class DefaultSeleniumService implements SeleniumService {
     }
 
     @Override
-    public List<java.lang.String> getWebElementsContentList(List<WebElement> webElementList) {
-        List<java.lang.String> result  = new ArrayList<>();
+    public List<String> getWebElementsContentList(final List<WebElement> webElementList) {
+        final List<String> result  = new ArrayList<>();
         webElementList.forEach(webElement -> result.add(webElement.getText()));
         return result;
+    }
+
+    //TODO correct parsing of chat messages with emotes etc
+    private String parseChatMessage(final WebElement element){
+        final WebElement innerElement = element.findElement(By.cssSelector("div.chat-line__no-background.tw-inline"));
+        final List<WebElement> msgElements = element.findElements(By.cssSelector("*"));
+        StringBuilder builder = new StringBuilder();
+        msgElements.forEach(msgElement -> builder.append(handleMsgElement(msgElement)));
+
+
+        return null;
+    }
+
+    private String handleMsgElement ( final WebElement msgElement){
+        final String tag = msgElement.getTagName();
+        String returnValue;
+        switch (tag){
+            case "div":
+                //TODO
+                break;
+            default:
+                returnValue = "";
+        }
+        return null;
     }
 
 }
