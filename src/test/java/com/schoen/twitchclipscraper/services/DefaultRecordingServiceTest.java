@@ -22,6 +22,6 @@ class DefaultRecordingServiceTest {
 
     @Test
     void testRecord(){
-        systemUnderTest.record(List.of("sweet_anita"));
+
     }
 }

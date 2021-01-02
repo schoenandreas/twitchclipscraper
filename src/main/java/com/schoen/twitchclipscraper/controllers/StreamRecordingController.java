@@ -24,7 +24,7 @@ public class StreamRecordingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/startall")
+    @PostMapping("/startAll")
     @ResponseBody
     public ResponseEntity<String> recordAll(){
         recordingService.recordAll();

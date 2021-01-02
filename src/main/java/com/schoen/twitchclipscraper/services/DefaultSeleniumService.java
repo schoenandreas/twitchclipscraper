@@ -36,7 +36,7 @@ public class DefaultSeleniumService implements SeleniumService {
        try {
            final WebElement liveElement = streamPage.findElement(By.cssSelector("a[href=\"/"+streamerName+"\"] div.live-indicator-container p.tw-strong"));
            boolean isLive = liveElement.getText().equals("LIVE");
-           log.info(streamerName+" is LIVE");
+           log.debug(streamerName+" is LIVE");
            return isLive ;
        }catch (NoSuchElementException e){
            log.debug("Live element not found. {} is offline or selector is broken.", streamerName);

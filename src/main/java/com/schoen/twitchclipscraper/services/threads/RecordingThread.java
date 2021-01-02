@@ -21,8 +21,10 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -30,8 +32,8 @@ import java.util.Locale;
 public class RecordingThread {
 
 
-    private static  int INTERVAL_REC_SEC = 10;
-    private static  int INTERVAL_WAIT_SEC = 20;
+    private static int INTERVAL_REC_SEC = 10;
+    private static int INTERVAL_WAIT_SEC = 10;
     public static volatile boolean recordingEnabled = true;
     private int oldMsgCount = 0;
 
@@ -41,7 +43,7 @@ public class RecordingThread {
     private final RecordEntryRepository recordEntryRepository;
 
     @Async("threadPoolTaskExecutor")
-    public void recordStreamerThread(final String streamerName) {
+    public CompletableFuture<String> recordStreamerThread(final String streamerName) {
         log.info("{}: recordingThread for Streamer {} started.",Timestamp.valueOf(LocalDateTime.now()), streamerName);
 
         final StreamerModel streamerModel = streamerRepository.findByStreamerName(streamerName);
@@ -56,22 +58,22 @@ public class RecordingThread {
                     streamRecordingModel = StreamRecordingModel.builder().streamer(streamerModel).startDate(now).intervalSeconds(INTERVAL_REC_SEC).entries(new ArrayList<>()).build();
                 }
                 final RecordEntryModel entry = createRecordEntry(streamRecordingModel, page);
-                log.info("oldMsgCount {}",oldMsgCount);
+                streamRecordingModel.setEndDate(entry.getEntryTime());
                 streamRecordingRepository.save(streamRecordingModel);
                 recordEntryRepository.save(entry);
+                log.info("Entry for recording for {} added: {}",streamerName, entry.getEntryTime());
                 sleepInSec(INTERVAL_REC_SEC);
             }
             if(streamRecordingModel != null){
-                Timestamp now = Timestamp.valueOf(LocalDateTime.now());
-                streamRecordingModel.setEndDate(now);
-                streamRecordingRepository.save(streamRecordingModel);
-                log.info("{}: Recording for Streamer {} finished.",now, streamerName);
+                log.info("{}: Recording for Streamer {} finished.",Timestamp.valueOf(LocalDateTime.now()), streamerName);
             }
             log.info("RecordingThread for Streamer {} is waiting {} sec.",streamerName,INTERVAL_WAIT_SEC);
             sleepInSec(INTERVAL_WAIT_SEC);
         }
         driver.quit();
         log.info("{}: recordingThread for Streamer {} finished.",Timestamp.valueOf(LocalDateTime.now()), streamerName);
+
+        return CompletableFuture.supplyAsync(() -> streamerName);
     }
 
     private void sleepInSec(final int sleepDuration) {

@@ -29,7 +29,7 @@ public class StreamerModel {
     @Column(unique = true, nullable = false)
     private String streamerName;
 
-    @OneToMany(mappedBy = "streamer")
+    @OneToMany(mappedBy = "streamer", fetch = FetchType.EAGER)
     private List<StreamRecordingModel> recordings;
 
 }
