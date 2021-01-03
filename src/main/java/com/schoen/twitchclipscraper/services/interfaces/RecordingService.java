@@ -11,5 +11,5 @@ public interface RecordingService{
 
     void createClip();
 
-    void stopRecording();
+    void stopRecordingAll();
 }

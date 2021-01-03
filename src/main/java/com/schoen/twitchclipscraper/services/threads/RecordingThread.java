@@ -67,8 +67,10 @@ public class RecordingThread {
             if(streamRecordingModel != null){
                 log.info("{}: Recording for Streamer {} finished.",Timestamp.valueOf(LocalDateTime.now()), streamerName);
             }
-            log.info("RecordingThread for Streamer {} is waiting {} sec.",streamerName,INTERVAL_WAIT_SEC);
-            sleepInSec(INTERVAL_WAIT_SEC);
+            if(recordingEnabled){
+                log.info("RecordingThread for Streamer {} is waiting {} sec.",streamerName,INTERVAL_WAIT_SEC);
+                sleepInSec(INTERVAL_WAIT_SEC);
+            }
         }
         driver.quit();
         log.info("{}: recordingThread for Streamer {} finished.",Timestamp.valueOf(LocalDateTime.now()), streamerName);

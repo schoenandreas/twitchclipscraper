@@ -20,21 +20,18 @@ public class DefaultRecordingService implements RecordingService {
 
     private final StreamerRepository streamerRepository;
     private final RecordingThread recordingThread;
-    private final Map<String, RecordingState> recordingStateMap;
-    private final List<CompletableFuture<String>> threads;
+    private final Map<String, CompletableFuture<String>> threads;
 
     private void record(final Collection<String> streamerNames) {
             RecordingThread.recordingEnabled = true;
             int startCounter = 0;
             int alreadyRunningCounter = 0;
-            updateRecordingStateMap();
             for(String streamerName : streamerNames){
-                if(recordingStateMap.get(streamerName) == RecordingState.RUNNING){
-                    alreadyRunningCounter++;
-                }else{
-                    threads.add(recordingThread.recordStreamerThread(streamerName));
-                    recordingStateMap.put(streamerName,RecordingState.RUNNING);
+                if(threads.get(streamerName) == null || threads.get(streamerName).isDone()){
+                    threads.put(streamerName, recordingThread.recordStreamerThread(streamerName));
                     startCounter++;
+                }else{
+                    alreadyRunningCounter++;
                 }
             }
             log.info("{} RecordingThreads started. {} ignored because already running.", startCounter, alreadyRunningCounter);
@@ -62,34 +59,9 @@ public class DefaultRecordingService implements RecordingService {
     }
 
     @Override
-    public void stopRecording(){
+    public void stopRecordingAll(){
         RecordingThread.recordingEnabled = false;
         log.info("RecordingThreads will be killed...");
     }
 
-    private void updateRecordingStateMap(){
-        try{
-            for(CompletableFuture<String> future : threads){
-                if(future.isDone()){
-                    try {
-                        recordingStateMap.put(future.get(),RecordingState.FINISHED);
-                        threads.remove(future);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }catch (ConcurrentModificationException e){
-            log.info("Need to wait to update recordingStateMap...");
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException ie) {
-                ie.printStackTrace();
-            }
-            updateRecordingStateMap();
-        }
-
-    }
 }

@@ -31,10 +31,10 @@ public class StreamRecordingController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/stop")
+    @PostMapping("/stopAll")
     @ResponseBody
     public ResponseEntity<String> stopRecording(){
-        recordingService.stopRecording();
+        recordingService.stopRecordingAll();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
